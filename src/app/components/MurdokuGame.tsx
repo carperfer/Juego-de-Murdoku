@@ -23,10 +23,10 @@ const SUSPECTS = [
 ] as const;
 
 const OBJECTS = [
-    { id: 'weapon', name: 'Dagger', icon: Sword, color: 'text-slate-500' },
-    { id: 'poison', name: 'Poison', icon: FlaskRound, color: 'text-green-700' },
-    { id: 'note', name: 'Secret Note', icon: ScrollText, color: 'text-amber-700' },
-    { id: 'clue', name: 'Fingerprint', icon: ScanFace, color: 'text-indigo-400' },
+    { id: 'weapon', name: 'Daga', icon: Sword, color: 'text-slate-500' },
+    { id: 'poison', name: 'Veneno', icon: FlaskRound, color: 'text-green-700' },
+    { id: 'note', name: 'Nota Secreta', icon: ScrollText, color: 'text-amber-700' },
+    { id: 'clue', name: 'Huella Digital', icon: ScanFace, color: 'text-indigo-400' },
 ] as const;
 
 type CellData = {
@@ -76,16 +76,16 @@ function generateClues(solution: { r: number, c: number, id: SuspectId }[], grid
         
         // Clue Type 1: Object Location (Strongest)
         if (cellObj && Math.random() > 0.3) {
-            clues.push(`${suspect.name} was found at the location with the ${getObjName(cellObj)}.`);
+            clues.push(`${suspect.name} fue encontrado en el lugar ${getObjName(cellObj)}.`);
             return;
         }
 
         // Clue Type 2: Row/Col (Medium)
         if (Math.random() > 0.5) {
-            clues.push(`${suspect.name} is hiding in row ${sol.r + 1}.`);
+            clues.push(`${suspect.name} se está escondiendo en la fila ${sol.r + 1}.`);
             return;
         } else {
-             clues.push(`${suspect.name} is hiding in column ${sol.c + 1}.`);
+             clues.push(`${suspect.name} se está escondiendo en la columna ${sol.c + 1}.`);
              return;
         }
     });
@@ -245,11 +245,11 @@ export default function MurdokuGame() {
             spread: 70,
             origin: { y: 0.6 }
         });
-        toast.success("Case Closed! All suspects located correctly.");
+        toast.success("¡Caso Cerrado! Todos los sospechosos ubicados correctamente.");
     } else if (placedCount === 4 && collision) {
-         toast.error("Invalid placement! Suspects cannot share a row or column.");
+         toast.error("¡Colocación inválida! Los sospechosos no pueden compartir fila o columna.");
     } else if (placedCount === 4) {
-         toast.error("Evidence doesn't match... check your clues again.");
+         toast.error("La evidencia no coincide... revisa las pistas de nuevo.");
     }
   };
 
@@ -278,7 +278,7 @@ export default function MurdokuGame() {
           MURDOKU
         </h1>
         <p className="text-slate-400 max-w-lg mx-auto text-sm md:text-base">
-          Logic Puzzle: Place the 4 suspects. Only <strong>one per row</strong> and <strong>one per column</strong>. Follow the clues to find their true locations.
+          Puzle Lógico: Localiza los 3 sospechosos y el muerto. Solo <strong>uno por fila</strong> y <strong>uno por columna</strong>. Sigue las pistas para encontrar sus ubicaciones verdaderas.
         </p>
       </div>
 
@@ -288,7 +288,7 @@ export default function MurdokuGame() {
         <div className="w-full lg:w-1/3 order-2 lg:order-1 bg-slate-900/60 border border-slate-800 p-5 rounded-2xl shadow-lg backdrop-blur-sm">
              <h3 className="text-lg font-serif font-bold text-amber-500 mb-4 flex items-center gap-2 border-b border-slate-800 pb-2">
                 <ScrollText className="w-5 h-5" />
-                Detective's Notebook
+                Cuaderno del Detective
             </h3>
             <ul className="space-y-4">
                 {clues.map((clue, idx) => (
@@ -299,7 +299,7 @@ export default function MurdokuGame() {
                 ))}
             </ul>
              <div className="mt-6 pt-4 border-t border-slate-800 text-xs text-slate-500 italic">
-                * Note: Rows are 1-4 (Top to Bottom). Columns are 1-4 (Left to Right).
+                * Nota: Las filas van del 1-4 (Arriba a Abajo). Las columnas van del 1-4 (Izquierda a Derecha).
             </div>
         </div>
 
@@ -351,7 +351,7 @@ export default function MurdokuGame() {
           {/* Controls */}
           <div className="w-full max-w-md bg-slate-900/50 p-4 rounded-xl border border-slate-800/50 backdrop-blur-sm">
             <div className="flex justify-between items-center mb-4">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Suspects (1 of each)</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Sospechosos (1 asesinado)</span>
             </div>
             
             <div className="flex justify-between gap-2">
@@ -397,13 +397,13 @@ export default function MurdokuGame() {
                 onClick={handleClearBoard}
                 className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-sm font-medium transition-colors border border-slate-700"
             >
-                <Eraser className="w-4 h-4" /> Clear
+                <Eraser className="w-4 h-4" /> Borrar
             </button>
             <button 
                 onClick={startNewGame}
                 className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full text-sm font-medium transition-colors border border-slate-700"
             >
-                <RotateCcw className="w-4 h-4" /> New Case
+                <RotateCcw className="w-4 h-4" /> Nuevo Caso
             </button>
           </div>
 
@@ -412,7 +412,7 @@ export default function MurdokuGame() {
         {/* RIGHT: Legend / Help */}
         <div className="w-full lg:w-1/4 order-3 text-sm text-slate-400 space-y-6">
             <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-800">
-                <h4 className="font-bold text-slate-300 mb-3 text-center">Legend</h4>
+                <h4 className="font-bold text-slate-300 mb-3 text-center">Objetos</h4>
                 <div className="grid grid-cols-2 gap-3">
                      {OBJECTS.map(obj => (
                          <div key={obj.id} className="flex items-center gap-2">
@@ -425,8 +425,8 @@ export default function MurdokuGame() {
             
             {won && (
                 <div className="bg-green-500/10 border border-green-500/30 p-4 rounded-xl text-center">
-                    <h4 className="font-bold text-green-400 mb-1">Excellent Work!</h4>
-                    <p className="text-green-300/80 text-xs">The mystery has been solved.</p>
+                    <h4 className="font-bold text-green-400 mb-1">¡Excelente Trabajo!</h4>
+                    <p className="text-green-300/80 text-xs">El misterio ha sido resuelto.</p>
                 </div>
             )}
         </div>
