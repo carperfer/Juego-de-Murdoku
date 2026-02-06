@@ -238,22 +238,37 @@ function createPuzzle(): PuzzleState {
     let lastPuzzle: PuzzleState | null = null;
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        // 1. Generate Background Grid (Objects)
+        // 1. Generate Solution first (Where the suspects actually are)
+        const solution = generateSolution(size);
+
+        // 2. Generate Background Grid with unique objects at solution positions
         const grid: CellData[][] = Array(size).fill(null).map(() => 
-            Array(size).fill(null).map(() => {
-                // 40% chance of an object
-                const hasObj = Math.random() < 0.4;
-                let objId: ObjectId | null = null;
-                if(hasObj) {
-                    const randomObj = OBJECTS[Math.floor(Math.random() * OBJECTS.length)];
-                    objId = randomObj.id as ObjectId;
-                }
-                return { objectId: objId, userValue: null };
-            })
+            Array(size).fill(null).map(() => ({ objectId: null, userValue: null }))
         );
 
-        // 2. Generate Solution (Where the suspects actually are)
-        const solution = generateSolution(size);
+        // Place unique objects at solution positions (for strong clues)
+        const usedObjects = new Set<ObjectId>();
+        const shuffledObjects = [...OBJECTS].sort(() => Math.random() - 0.5);
+        
+        for (let i = 0; i < Math.min(3, solution.length); i++) {
+            const sol = solution[i];
+            const obj = shuffledObjects[i];
+            grid[sol.r][sol.c].objectId = obj.id as ObjectId;
+            usedObjects.add(obj.id as ObjectId);
+        }
+
+        // Fill remaining cells with objects (40% chance, avoiding duplicates of used objects)
+        for (let r = 0; r < size; r++) {
+            for (let c = 0; c < size; c++) {
+                if (grid[r][c].objectId === null && Math.random() < 0.4) {
+                    const availableObjects = OBJECTS.filter(o => !usedObjects.has(o.id as ObjectId));
+                    if (availableObjects.length > 0) {
+                        const randomObj = availableObjects[Math.floor(Math.random() * availableObjects.length)];
+                        grid[r][c].objectId = randomObj.id as ObjectId;
+                    }
+                }
+            }
+        }
 
         // 3. Generate Clues based on the solution and grid
         const clues = generateClues(solution, grid);
