@@ -1,0 +1,43 @@
+{
+  "game": {
+    "title": "MURDOKU",
+    "subtitle": "Puzle Lógico: Coloca los 4 sospechosos. Solo uno por fila y uno por columna. Sigue las pistas para encontrar sus ubicaciones verdaderas.",
+    "notebookTitle": "Cuaderno del Detective",
+    "coordinateNote": "Nota: Las filas van del 1-4 (Arriba a Abajo). Las columnas van del 1-4 (Izquierda a Derecha).",
+    "suspectsLabel": "Sospechosos (1 de cada)",
+    "legendTitle": "Leyenda",
+    "excellentWork": "¡Excelente Trabajo!",
+    "mysterySolved": "El misterio ha sido resuelto."
+  },
+  "buttons": {
+    "clear": "Limpiar",
+    "newCase": "Nuevo Caso"
+  },
+  "suspects": {
+    "1": "Barón Rojo",
+    "2": "Dama Azul",
+    "3": "Dra. Esmeralda",
+    "4": "Conde Oro"
+  },
+  "objects": {
+    "weapon": { "name": "Puñal", "article": "el" },
+    "poison": { "name": "Veneno", "article": "el" },
+    "note": { "name": "Nota Secreta", "article": "la" },
+    "clue": { "name": "Huella Digital", "article": "la" }
+  },
+  "messages": {
+    "won": "¡Caso Cerrado! Todos los sospechosos ubicados correctamente.",
+    "invalidPlacement": "¡Colocación inválida! Los sospechosos no pueden compartir fila o columna.",
+    "checkClues": "La evidencia no coincide... revisa las pistas de nuevo."
+  },
+  "cluePatterns": {
+    "object": "{suspect} fue encontrado en la ubicación con {article} {object}.",
+    "objectInRow": "{suspect} está en la fila {position} donde hay {article} {object}.",
+    "objectInColumn": "{suspect} está en la columna {position} donde hay {article} {object}.",
+    "objectPair": "{suspect} fue encontrado en la ubicación con {article1} {object1} y {article2} {object2}.",
+    "row": "{suspect} se está escondiendo en la fila {position}.",
+    "column": "{suspect} se está escondiendo en la columna {position}.",
+    "notRow": "{suspect} no está en la fila {position}.",
+    "notColumn": "{suspect} no está en la columna {position}."
+  }
+}

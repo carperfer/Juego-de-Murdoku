@@ -1,0 +1,43 @@
+{
+  "game": {
+    "title": "MURDOKU",
+    "subtitle": "Logic Puzzle: Place the 4 suspects. Only one per row and one per column. Follow the clues to find their true locations.",
+    "notebookTitle": "Detective's Notebook",
+    "coordinateNote": "Note: Rows are 1-4 (Top to Bottom). Columns are 1-4 (Left to Right).",
+    "suspectsLabel": "Suspects (1 of each)",
+    "legendTitle": "Legend",
+    "excellentWork": "Excellent Work!",
+    "mysterySolved": "The mystery has been solved."
+  },
+  "buttons": {
+    "clear": "Clear",
+    "newCase": "New Case"
+  },
+  "suspects": {
+    "1": "Baron Scarlet",
+    "2": "Lady Azure",
+    "3": "Dr. Emerald",
+    "4": "Count Gold"
+  },
+  "objects": {
+    "weapon": { "name": "Dagger", "article": "a" },
+    "poison": { "name": "Poison", "article": "a" },
+    "note": { "name": "Secret Note", "article": "a" },
+    "clue": { "name": "Fingerprint", "article": "a" }
+  },
+  "messages": {
+    "won": "Case Closed! All suspects located correctly.",
+    "invalidPlacement": "Invalid placement! Suspects cannot share a row or column.",
+    "checkClues": "Evidence doesn't match... check your clues again."
+  },
+  "cluePatterns": {
+    "object": "{suspect} was found at the location with {article} {object}.",
+    "objectInRow": "{suspect} is in row {position} where there is {article} {object}.",
+    "objectInColumn": "{suspect} is in column {position} where there is {object}.",
+    "objectPair": "{suspect} was found at the location with {article1} {object1} and {article2} {object2}.",
+    "row": "{suspect} is hiding in row {position}.",
+    "column": "{suspect} is hiding in column {position}.",
+    "notRow": "{suspect} is not in row {position}.",
+    "notColumn": "{suspect} is not in column {position}."
+  }
+}

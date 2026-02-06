@@ -41,6 +41,13 @@ type PuzzleState = {
     clues: string[];
 };
 
+type ParsedClue = {
+    suspectId: SuspectId;
+    row?: number;
+    col?: number;
+    objectId?: ObjectId;
+};
+
 // --- Generators ---
 
 function generateSolution(size: number): { r: number, c: number, id: SuspectId }[] {
@@ -96,30 +103,170 @@ function generateClues(solution: { r: number, c: number, id: SuspectId }[], grid
     return clues.sort(() => Math.random() - 0.5);
 }
 
-function createPuzzle(): PuzzleState {
-    const size = 4;
-    
-    // 1. Generate Background Grid (Objects)
-    const grid: CellData[][] = Array(size).fill(null).map(() => 
-        Array(size).fill(null).map(() => {
-            // 40% chance of an object
-            const hasObj = Math.random() < 0.4;
-            let objId: ObjectId | null = null;
-            if(hasObj) {
-                const randomObj = OBJECTS[Math.floor(Math.random() * OBJECTS.length)];
-                objId = randomObj.id as ObjectId;
-            }
-            return { objectId: objId, userValue: null };
-        })
+function parseClues(clues: string[]): ParsedClue[] {
+    const parsed: ParsedClue[] = [];
+
+    const suspectNames = new Map<string, SuspectId>(
+        SUSPECTS.map(s => [s.name, s.id])
+    );
+    const objectNames = new Map<string, ObjectId>(
+        OBJECTS.map(o => [o.name, o.id as ObjectId])
     );
 
-    // 2. Generate Solution (Where the suspects actually are)
-    const solution = generateSolution(size);
+    clues.forEach(clue => {
+        let suspectId: SuspectId | null = null;
+        for (const [name, id] of suspectNames.entries()) {
+            if (clue.includes(name)) {
+                suspectId = id;
+                break;
+            }
+        }
 
-    // 3. Generate Clues based on the solution and grid
-    const clues = generateClues(solution, grid);
+        if (!suspectId) return;
 
-    return { grid, solution, clues };
+        const parsedClue: ParsedClue = { suspectId };
+
+        const rowMatch = clue.match(/fila (\d)/i);
+        if (rowMatch) parsedClue.row = parseInt(rowMatch[1], 10) - 1;
+
+        const colMatch = clue.match(/columna (\d)/i);
+        if (colMatch) parsedClue.col = parseInt(colMatch[1], 10) - 1;
+
+        for (const [name, id] of objectNames.entries()) {
+            if (clue.includes(name)) {
+                parsedClue.objectId = id;
+                break;
+            }
+        }
+
+        parsed.push(parsedClue);
+    });
+
+    return parsed;
+}
+
+function solvePuzzle(parsedClues: ParsedClue[], grid: CellData[][]): { r: number, c: number, id: SuspectId }[][] {
+    const solutions: { r: number, c: number, id: SuspectId }[][] = [];
+
+    const cols = [0, 1, 2, 3];
+    const suspectIds: SuspectId[] = [1, 2, 3, 4];
+
+    const permute = <T,>(arr: T[], start: number, results: T[][]) => {
+        if (start === arr.length - 1) {
+            results.push([...arr]);
+            return;
+        }
+        for (let i = start; i < arr.length; i++) {
+            [arr[start], arr[i]] = [arr[i], arr[start]];
+            permute(arr, start + 1, results);
+            [arr[start], arr[i]] = [arr[i], arr[start]];
+        }
+    };
+
+    const colPerms: number[][] = [];
+    const suspectPerms: SuspectId[][] = [];
+    permute(cols, 0, colPerms);
+    permute(suspectIds, 0, suspectPerms);
+
+    for (const colPerm of colPerms) {
+        for (const suspectPerm of suspectPerms) {
+            const candidate: { r: number, c: number, id: SuspectId }[] = [];
+            for (let r = 0; r < 4; r++) {
+                candidate.push({ r, c: colPerm[r], id: suspectPerm[r] });
+            }
+
+            let valid = true;
+            for (const clue of parsedClues) {
+                const placement = candidate.find(p => p.id === clue.suspectId);
+                if (!placement) {
+                    valid = false;
+                    break;
+                }
+
+                if (clue.row !== undefined && placement.r !== clue.row) {
+                    valid = false;
+                    break;
+                }
+
+                if (clue.col !== undefined && placement.c !== clue.col) {
+                    valid = false;
+                    break;
+                }
+
+                if (clue.objectId !== undefined) {
+                    const cellObj = grid[placement.r][placement.c].objectId;
+                    if (cellObj !== clue.objectId) {
+                        valid = false;
+                        break;
+                    }
+                }
+            }
+
+            if (valid) solutions.push(candidate);
+        }
+    }
+
+    return solutions;
+}
+
+function isUniquePuzzle(clues: string[], grid: CellData[][]): boolean {
+    const parsed = parseClues(clues);
+    if (parsed.length < 4) return false;
+    const suspectSet = new Set(parsed.map(clue => clue.suspectId));
+    if (suspectSet.size < 4) return false;
+    const objectClueCount = parsed.filter(clue => clue.objectId !== undefined).length;
+    if (objectClueCount < 2) return false;
+    const objectCounts = new Map<ObjectId, number>();
+    grid.forEach(row => row.forEach(cell => {
+        if (cell.objectId) {
+            objectCounts.set(cell.objectId, (objectCounts.get(cell.objectId) ?? 0) + 1);
+        }
+    }));
+    for (const clue of parsed) {
+        if (clue.objectId !== undefined) {
+            if ((objectCounts.get(clue.objectId) ?? 0) !== 1) return false;
+        }
+    }
+    const solutions = solvePuzzle(parsed, grid);
+    return solutions.length === 1;
+}
+
+function createPuzzle(): PuzzleState {
+    const size = 4;
+
+    const maxAttempts = 120;
+    let lastPuzzle: PuzzleState | null = null;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        // 1. Generate Background Grid (Objects)
+        const grid: CellData[][] = Array(size).fill(null).map(() => 
+            Array(size).fill(null).map(() => {
+                // 40% chance of an object
+                const hasObj = Math.random() < 0.4;
+                let objId: ObjectId | null = null;
+                if(hasObj) {
+                    const randomObj = OBJECTS[Math.floor(Math.random() * OBJECTS.length)];
+                    objId = randomObj.id as ObjectId;
+                }
+                return { objectId: objId, userValue: null };
+            })
+        );
+
+        // 2. Generate Solution (Where the suspects actually are)
+        const solution = generateSolution(size);
+
+        // 3. Generate Clues based on the solution and grid
+        const clues = generateClues(solution, grid);
+
+        const puzzle = { grid, solution, clues };
+        lastPuzzle = puzzle;
+
+        if (isUniquePuzzle(clues, grid)) {
+            return puzzle;
+        }
+    }
+
+    return lastPuzzle ?? { grid: [], solution: [], clues: [] };
 }
 
 // --- Components ---
